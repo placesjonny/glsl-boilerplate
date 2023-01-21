@@ -1,0 +1,1 @@
+This is a bare-bones GLSL fragment shader boilerplate for Artblocks/Fxhash generative art projects.
