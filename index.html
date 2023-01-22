@@ -4,7 +4,7 @@
 <!-- <body style="margin:0px;"> -->
 
 <body>
-    <canvas id="canvas" height="500" width="500"></canvas>
+    <canvas id="canvas" height="800" width="800"></canvas>
     <script>
         // ART BLOCKS CODE
         function genTokenData(projectNum) {
@@ -18,6 +18,8 @@
             return data;
         }
         let tokenData = genTokenData(123);
+        // EXAMPLE HASH, IF THIS IS THE SAME THEN OUTPUT SHOULD BE THE SAME
+        // tokenData.hash = "0x11ac128f8b54949c12d04102cfc01960fc496813cbc3495bf77aeed738579738";
         class Random {
             constructor() {
                 this.useA = false;
@@ -70,6 +72,7 @@
             }
         }
         let R = new Random();
+        let randHash = R.random_dec();
         /*
         R.random_dec()      // Random decimal [0-1)
         R.random_num(0, 10) // Random decimal [0-10)
@@ -78,9 +81,10 @@
         R.random_choice([1, 2, 3])  // Random choice from a given list. Great for getting a random color from a discrete color palette
         */
 
-
+    </script>
+    <script>
         // START OF WEBGL CODE
-
+        var startTime = Date.now();
 
         // Get the canvas and context
         var canvas = document.getElementById("canvas");
@@ -116,8 +120,17 @@
 
                         // Use the program
                         gl.useProgram(program);
+
+                        // UNIFORMS
                         var location = gl.getUniformLocation(program, "RAND_HASH");
-                        gl.uniform1f(location, 0.5);
+                        gl.uniform1f(location, randHash);
+                        // Get the location of the uniform variables in the shaders
+                        var timeUniformLocation = gl.getUniformLocation(program, "u_time");
+                        var resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+                        // Set the value of the uniform variables
+                        var currentTime = (Date.now() - startTime) / 1000;
+                        gl.uniform1f(timeUniformLocation, currentTime);
+                        gl.uniform2fv(resolutionUniformLocation, [canvas.width, canvas.height]);
 
                         // Create and bind the buffer
                         var buffer = gl.createBuffer();
@@ -144,11 +157,23 @@
                         var primitiveType = gl.TRIANGLE_STRIP;
                         var offset = 0;
                         var count = 4;
+
                         gl.drawArrays(primitiveType, offset, count);
+
+                        // RENDER FUNCTION TO CONTINUOUSLY UPDATE THE U_TIME UNIFORM
+                        function render() {
+                            var currentTime = (Date.now() - startTime) / 1000;
+                            gl.uniform1f(timeUniformLocation, currentTime);
+
+                            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+                            requestAnimationFrame(render);
+                        }
+                        // START ANIMATING
+                        // render();
                     });
             });
     </script>
-
 </body>
 
 </html>
